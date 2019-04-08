@@ -1,0 +1,32 @@
+<%inherit file="/base.html"/>
+
+<%block name="content">
+<div id="demo" class="demo" v-cloak>
+    {{ msg }}
+</div>
+<style>
+    [v-cloak] {
+        display: none !important;
+    }
+</style>
+</%block>
+
+<script>
+    Vue.prototype.$http = axios;
+    Vue.use(iview);
+    new Vue({
+        el: '#demo',
+        data() {
+            return {
+                msg: 'demo'
+            }
+        },
+        methods: {},
+    })
+</script>
+<style>
+    .demo{
+        padding: 10px;
+    }
+</style>
+
