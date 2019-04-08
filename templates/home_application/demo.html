@@ -71,7 +71,7 @@
         },
         methods: {
             searchPh() {
-                this.$http.post('search_ph', {ip: this.ip}).then(res => {
+                this.$http.post('t/search_ph', {ip: this.ip}).then(res => {
                     this.phList = res.data;
                     let params = {
                         data: res.data,
@@ -83,12 +83,12 @@
                 })
             },
             searchMen() {
-                this.$http.post('get_mem', {ip: this.ip, biz_id: this.biz_id}).then(res => {
+                this.$http.post('t/get_mem', {ip: this.ip, biz_id: this.biz_id}).then(res => {
                     this.initChart2(res.data);
                 })
             },
             searchDisk() {
-                this.$http.post('get_disk', {ip: this.ip, biz_id: this.biz_id}).then(res => {
+                this.$http.post('t/get_disk', {ip: this.ip, biz_id: this.biz_id}).then(res => {
                     this.diskData = res.data;
                 })
             },

@@ -179,7 +179,7 @@
         },
         methods: {
             searchHost() {
-                this.$http.post('search_host?ip=' + this.condition).then(res => {
+                this.$http.post('t/search_host?ip=' + this.condition).then(res => {
                     if (res.result) {
                         this.hostList = res.data;
                     } else {
@@ -188,7 +188,7 @@
                 });
             },
             searchCCBusiness() {
-                this.$http.post('/cc/search_business', {}).then(res => {
+                this.$http.post('t/cc/search_business', {}).then(res => {
                     if (res.result) {
                         this.businessList = res.data.info;
                         if (this.businessList.length > 0) {
@@ -201,7 +201,7 @@
                 });
             },
             searchCCSet() {
-                this.$http.post('/cc/search_set?biz_id=' + this.formItem.biz_id).then(res => {
+                this.$http.post('t/cc/search_set?biz_id=' + this.formItem.biz_id).then(res => {
                     if (res.result) {
                         this.setList = res.data.info;
                         if (this.setList.length > 0) {
@@ -216,7 +216,7 @@
                 });
             },
             searchCCHost() {
-                this.$http.post('/cc/search_host?biz_id=' + this.formItem.biz_id + '&' + 'set_id=' + this.formItem.set_id).then(res => {
+                this.$http.post('t/cc/search_host?biz_id=' + this.formItem.biz_id + '&' + 'set_id=' + this.formItem.set_id).then(res => {
                     if (res.result) {
                         this.ccHostList = res.data.info;
                         if (this.hostList.length > 0) {
@@ -252,7 +252,7 @@
                     desc: this.formItem.desc,
                     os_name: host.host.bk_os_name
                 };
-                this.$http.post('add_host', JSON.stringify(this.params)).then(res => {
+                this.$http.post('t/add_host', JSON.stringify(this.params)).then(res => {
                     if (res.result) {
                         this.searchHost();
                         this.showModal = false;
@@ -262,7 +262,7 @@
                 });
             },
             delHost(row, index) {
-                this.$http.post('del_host?id=' + row.id).then(res => {
+                this.$http.post('t/del_host?id=' + row.id).then(res => {
                     if (res.result) {
                         this.searchHost();
                     } else {
@@ -279,7 +279,7 @@
                 this.showModal = true;
             },
             updateSaveHost() {
-                this.$http.post('update_host?id=' + this.rowId, {desc: this.formItem.desc}).then(res => {
+                this.$http.post('t/update_host?id=' + this.rowId, {desc: this.formItem.desc}).then(res => {
                     if (res.result) {
                         this.searchHost();
                     } else {
@@ -288,7 +288,7 @@
                 });
             },
             searchPH(row, index) {
-                window.location.href = '/demo?ip=' + row.innerip + '&' + 'biz_id=' + row.biz_id
+                window.location.href = 't//demo?ip=' + row.innerip + '&' + 'biz_id=' + row.biz_id
             }
         },
     })
