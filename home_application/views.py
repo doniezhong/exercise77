@@ -165,8 +165,8 @@ def search_ph_host(request):
 def search_ph_list_by_ip(request):
     ip = request.GET.get('ip')
     host = HostPerformance.objects.filter(ip=ip)
-    if(len(host) > 30):
-        data = list(host.values()[0:30])
+    if(len(host) > 50):
+        data = list(host.values()[0:50])
     else:
         data = list(host.values())
     return success_result(data)
