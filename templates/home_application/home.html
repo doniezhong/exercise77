@@ -161,30 +161,48 @@
                 });
             },
             start(row, index) {
-                this.$http.post('update_ip_config', {
-                    biz_id: this.formItem.biz_id,
-                    ip: row.host.bk_host_innerip,
-                    status: '1'
-                }).then(res => {
-                    if (res.result) {
-                        this.searchCCHost();
-                        this.$Message.success("开启成功");
-                    } else {
-                        this.$Message.error(res.message);
+                this.$Modal.confirm({
+                    title: '',
+                    content: '<p>是否加入周期检查列表</p>',
+                    onOk: () => {
+                        this.$http.post('update_ip_config', {
+                            biz_id: this.formItem.biz_id,
+                            ip: row.host.bk_host_innerip,
+                            status: '1'
+                        }).then(res => {
+                            if (res.result) {
+                                this.searchCCHost();
+                                this.$Message.success("加入成功");
+                            } else {
+                                this.$Message.error(res.message);
+                            }
+                        });
+                    },
+                    onCancel: () => {
+                        this.$Message.info('已取消');
                     }
                 });
             },
             stop(row, index) {
-                this.$http.post('update_ip_config', {
-                    biz_id: this.formItem.biz_id,
-                    ip: row.host.bk_host_innerip,
-                    status: '0'
-                }).then(res => {
-                    if (res.result) {
-                        this.searchCCHost();
-                        this.$Message.success("开启成功");
-                    } else {
-                        this.$Message.error(res.message);
+                this.$Modal.confirm({
+                    title: '',
+                    content: '<p>是否从周期检查列表删除</p>',
+                    onOk: () => {
+                        this.$http.post('update_ip_config', {
+                            biz_id: this.formItem.biz_id,
+                            ip: row.host.bk_host_innerip,
+                            status: '0'
+                        }).then(res => {
+                            if (res.result) {
+                                this.searchCCHost();
+                                this.$Message.success("删除成功");
+                            } else {
+                                this.$Message.error(res.message);
+                            }
+                        });
+                    },
+                    onCancel: () => {
+                        this.$Message.info('已取消');
                     }
                 });
             },
@@ -204,14 +222,23 @@
                 this.searchCCHost();
             },
             searchPH(row, index) {
-                this.$http.post('get_ph_by_ip', {
-                    biz_id: this.formItem.biz_id,
-                    ip: row.host.bk_host_innerip
-                }).then(res => {
-                    if (res.result) {
-                        this.searchCCHost();
-                    } else {
-                        this.$Message.error(res.message);
+                this.$Modal.confirm({
+                    title: '',
+                    content: '<p>是否查询系统资源使用情况</p>',
+                    onOk: () => {
+                        this.$http.post('get_ph_by_ip', {
+                            biz_id: this.formItem.biz_id,
+                            ip: row.host.bk_host_innerip
+                        }).then(res => {
+                            if (res.result) {
+                                this.searchCCHost();
+                            } else {
+                                this.$Message.error(res.message);
+                            }
+                        });
+                    },
+                    onCancel: () => {
+                        this.$Message.info('已取消');
                     }
                 });
             }
