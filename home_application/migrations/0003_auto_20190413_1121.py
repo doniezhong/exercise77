@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('home_application', '0004_ph_cpu'),
+        ('home_application', '0002_hostperformance_when_created'),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='ph',
-            name='ip',
-            field=models.CharField(default=b'', max_length=50),
+        migrations.AlterField(
+            model_name='ipconfig',
+            name='biz_id',
+            field=models.IntegerField(null=True),
         ),
     ]

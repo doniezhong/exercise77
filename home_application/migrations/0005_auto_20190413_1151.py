@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('home_application', '0003_auto_20190408_1624'),
+        ('home_application', '0004_auto_20190413_1145'),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='ph',
-            name='cpu',
-            field=models.IntegerField(default=0),
+        migrations.AlterField(
+            model_name='ipconfig',
+            name='is_period',
+            field=models.BooleanField(default=False),
         ),
     ]

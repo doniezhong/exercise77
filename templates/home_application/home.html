@@ -1,62 +1,18 @@
 <%inherit file="/base.html"/>
 
 <%block name="content">
-<div id="app" class="app" v-cloak>
+<div id="app" class="app" v-cloak style="padding: 10px">
     <div class="app-search" style="height: 40px;width: 100%">
+        <i-select v-model="formItem.biz_id" placeholder="请选择业务" @change="changeBusiness"
+                  style="display: inline-block;width: 140px">
+            <i-option :value="bus.bk_biz_id" v-for="(bus, index) in businessList" :key="index">
+                {{ bus.bk_biz_name }}
+            </i-option>
+        </i-select>
         <i-input v-model="condition" placeholder="请输入IP" style="width: 140px;display: inline-block"></i-input>
-        <i-button type="primary" style="display: inline-block" @click="searchHost">查询</i-button>
-        <i-button type="primary" style="display: inline-block;float: right" @click="addHost">添加</i-button>
+        <i-button type="primary" style="display: inline-block" @click="searchCCHost">查询</i-button>
     </div>
     <i-table :columns="columns" :data="hostList"></i-table>
-    <Modal
-            v-model="showModal"
-            title="Title"
-            :loading="loading"
-            @on-ok="saveAddHost">
-        业务：
-        <i-select v-model="formItem.biz_id" v-if="operator!=='1'"  @on-change="searchCCSet"
-                  style="display: inline-block;width: 300px">
-            <i-option :value="bus.bk_biz_id" v-for="(bus, index) in businessList" :key="index">
-                {{ bus.bk_biz_name }}
-            </i-option>
-        </i-select>
-        <i-select v-model="formItem.biz_id" v-else disabled="disabled" @on-change="searchCCSet"
-                  style="display: inline-block;width: 300px">
-            <i-option :value="bus.bk_biz_id" v-for="(bus, index) in businessList" :key="index">
-                {{ bus.bk_biz_name }}
-            </i-option>
-        </i-select>
-        <br>
-        <br>
-        集群：
-        <i-select v-model="formItem.set_id" v-if="operator!=='1'" @on-change="searchCCHost"
-                  style="display: inline-block;width: 300px">
-            <i-option :value="set.bk_set_id" v-for="(set, index) in setList" :key="index">
-                {{ set.bk_set_name }}
-            </i-option>
-        </i-select>
-        <i-select v-model="formItem.set_id" v-else disabled="disabled" @on-change="searchCCHost"
-                  style="display: inline-block;width: 300px">
-            <i-option :value="set.bk_set_id" v-for="(set, index) in setList" :key="index">
-                {{ set.bk_set_name }}
-            </i-option>
-        </i-select>
-        <br>
-        <br>
-        <span v-if="operator!=='1'">主机：</span>
-        <i-select v-if="operator!=='1'" v-model="formItem.host"
-                  style="display: inline-block;width: 300px">
-            <i-option :value="JSON.stringify(host)" v-for="(host, index) in ccHostList" :key="index">
-                {{ host.host.bk_host_innerip }}
-            </i-option>
-        </i-select>
-        <br v-if="operator!=='1'">
-        <br v-if="operator!=='1'">
-        备注：
-        <i-input v-model="formItem.desc" type="textarea" style="display: inline-block;width: 300px"
-                 :autosize="{minRows: 2,maxRows: 5}"
-                 placeholder="请输入备注"></i-input>
-    </Modal>
 </div>
 <style>
     [v-cloak] {
@@ -82,46 +38,61 @@
         el: '#app',
         data() {
             return {
-                loading: false,
                 condition: '',
                 businessList: [],
-                setList: [],
-                ccHostList: [],
                 hostList: [],
-                showModal: false,
                 formItem: {},
-                operator: '0',
-                rowId: '',
                 columns: [
                     {
                         title: 'IP地址',
-                        key: 'innerip'
+                        render: (h, params) => {
+                            return h('div', params.row.host.bk_host_innerip)
+                        }
+                    },
+                    {
+                        title: '系统名',
+                        render: (h, params) => {
+                            return h('div', params.row.host.bk_os_name)
+                        }
                     },
                     {
                         title: '主机名',
-                        key: 'os_name'
-                    },
-                    {
-                        title: '业务名',
-                        key: 'biz_name'
+                        render: (h, params) => {
+                            return h('div', params.row.host.bk_host_name)
+                        }
                     },
                     {
                         title: '云区域',
-                        key: 'cloud_name'
-                    },
-                    {
-                        title: '操作系统类型',
-                        key: 'os_type'
-                    },
-                    {
-                        title: '备注',
-                        key: 'desc'
-                    },
-                    {
-                        title: 'Action',
-                        key: 'action',
                         render: (h, params) => {
-                            return h('div', [
+                            return h('div', params.row.host.bk_cloud_id[0].bk_inst_name)
+                        }
+                    },
+                    {
+                        title: 'Mem(%)',
+                        width: 100,
+                        render: (h, params) => {
+                            return h('div', params.row.mem)
+                        }
+                    },
+                    {
+                        title: 'Disk(%)',
+                        width: 100,
+                        render: (h, params) => {
+                            return h('div', params.row.disk)
+                        }
+                    },
+                    {
+                        title: 'Cpu(%)',
+                        width: 100,
+                        render: (h, params) => {
+                            return h('div', params.row.cpu)
+                        }
+                    },
+                    {
+                        title: '操作',
+                        render: (h, params) => {
+                            let is_preiod = params.row.is_preiod;
+                            let btnArr = [
                                 h('Button', {
                                     props: {
                                         type: 'primary',
@@ -132,82 +103,56 @@
                                     },
                                     on: {
                                         click: () => {
-                                            this.updateHost(params.row, params.index)
-                                        }
-                                    }
-                                }, '编辑'),
-                                h('Button', {
-                                    props: {
-                                        type: 'error',
-                                        size: 'small'
-                                    },
-                                    style: {
-                                        marginRight: '5px'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.delHost(params.row, params.index)
-                                        }
-                                    }
-                                }, '删除'),
-                                h('Button', {
-                                    props: {
-                                        type: 'info',
-                                        size: 'small'
-                                    },
-                                    on: {
-                                        click: () => {
                                             this.searchPH(params.row, params.index)
                                         }
                                     }
-                                }, '查看性能')
-                            ]);
+                                }, '查询性能'),
+                            ];
+                            if (is_preiod) {
+                                btnArr.push(
+                                    h('Button', {
+                                        props: {
+                                            type: 'error',
+                                            size: 'small'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                this.stop(params.row, params.index)
+                                            }
+                                        }
+                                    }, '关闭')
+                                )
+                            } else {
+                                btnArr.push(
+                                    h('Button', {
+                                        props: {
+                                            type: 'info',
+                                            size: 'small'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                this.start(params.row, params.index)
+                                            }
+                                        }
+                                    }, '开启')
+                                )
+                            }
+                            return h('div', btnArr);
                         }
                     }
                 ]
             }
         },
         mounted() {
-            this.searchHost();
-        },
-        watch: {
-            showModal() {
-                if (this.showModal) {
-                    this.searchCCBusiness();
-                }
-            }
+            this.searchCCBusiness();
         },
         methods: {
-            searchHost() {
-                this.$http.post('search_host?ip=' + this.condition).then(res => {
-                    if (res.result) {
-                        this.hostList = res.data;
-                    } else {
-                        this.$Message.error(res.message);
-                    }
-                });
-            },
             searchCCBusiness() {
                 this.$http.post('cc/search_business', {}).then(res => {
                     if (res.result) {
                         this.businessList = res.data.info;
                         if (this.businessList.length > 0) {
                             this.formItem.biz_id = this.businessList[0].bk_biz_id;
-                            this.searchCCSet();
-                        }
-                    } else {
-                        this.$Message.error(res.message);
-                    }
-                });
-            },
-            searchCCSet() {
-                this.$http.post('cc/search_set?biz_id=' + this.formItem.biz_id).then(res => {
-                    if (res.result) {
-                        this.setList = res.data.info;
-                        if (this.setList.length > 0) {
-                            if (this.operator !== '1') {
-                                this.formItem.set_id = this.setList[0].bk_set_id;
-                            }
                             this.searchCCHost();
                         }
                     } else {
@@ -215,80 +160,60 @@
                     }
                 });
             },
-            searchCCHost() {
-                this.$http.post('cc/search_host?biz_id=' + this.formItem.biz_id + '&' + 'set_id=' + this.formItem.set_id).then(res => {
-                    if (res.result) {
-                        this.ccHostList = res.data.info;
-                        if (this.hostList.length > 0) {
-                            this.formItem.host = JSON.stringify(this.hostList[0]);
-                        }
-                    } else {
-                        this.$Message.error(res.message);
-                    }
-                });
-            },
-            addHost() {
-                this.showModal = true;
-            },
-            saveAddHost() {
-                if (this.operator === '1') {
-                    this.updateSaveHost();
-                    return
-                }
-                let biz_name = '';
-                this.businessList.forEach(item => {
-                    if (item.bk_biz_id === this.formItem.biz_id) {
-                        biz_name = item.bk_biz_name;
-                    }
-                });
-                let host = JSON.parse(this.formItem.host);
-                this.params = {
+            start(row, index) {
+                this.$http.post('update_ip_config', {
                     biz_id: this.formItem.biz_id,
-                    biz_name: biz_name,
-                    set_id: this.formItem.set_id,
-                    innerip: host.host.bk_host_innerip,
-                    os_type: host.host.bk_os_type === '1' ? 'Linux' : 'Windwos',
-                    cloud_name: 'default area',
-                    desc: this.formItem.desc,
-                    os_name: host.host.bk_os_name
-                };
-                this.$http.post('add_host', JSON.stringify(this.params)).then(res => {
+                    ip: row.host.bk_host_innerip,
+                    status: '1'
+                }).then(res => {
                     if (res.result) {
-                        this.searchHost();
-                        this.showModal = false;
+                        this.searchCCHost();
+                        this.$Message.success("开启成功");
                     } else {
                         this.$Message.error(res.message);
                     }
                 });
             },
-            delHost(row, index) {
-                this.$http.post('del_host?id=' + row.id).then(res => {
+            stop(row, index) {
+                this.$http.post('update_ip_config', {
+                    biz_id: this.formItem.biz_id,
+                    ip: row.host.bk_host_innerip,
+                    status: '0'
+                }).then(res => {
                     if (res.result) {
-                        this.searchHost();
+                        this.searchCCHost();
+                        this.$Message.success("开启成功");
                     } else {
                         this.$Message.error(res.message);
                     }
                 });
             },
-            updateHost(row, index) {
-                this.rowId = row.id;
-                this.operator = '1';
-                this.formItem.biz_id = Number(row.biz_id);
-                this.formItem.set_id = Number(row.set_id);
-                this.formItem.desc = row.desc;
-                this.showModal = true;
-            },
-            updateSaveHost() {
-                this.$http.post('update_host?id=' + this.rowId, {desc: this.formItem.desc}).then(res => {
+            searchCCHost() {
+                this.$http.post('cc/search_host?biz_id=' + this.formItem.biz_id, {
+                    bk_host_innerip: this.condition
+                }).then(res => {
                     if (res.result) {
-                        this.searchHost();
+                        this.hostList = res.data;
                     } else {
                         this.$Message.error(res.message);
                     }
                 });
+            },
+            changeBusiness() {
+                this.condition = '';
+                this.searchCCHost();
             },
             searchPH(row, index) {
-                window.location.href = 'demo?ip=' + row.innerip + '&' + 'biz_id=' + row.biz_id
+                this.$http.post('get_ph_by_ip', {
+                    biz_id: this.formItem.biz_id,
+                    ip: row.host.bk_host_innerip
+                }).then(res => {
+                    if (res.result) {
+                        this.searchCCHost();
+                    } else {
+                        this.$Message.error(res.message);
+                    }
+                });
             }
         },
     })

@@ -8,15 +8,10 @@ urlpatterns = patterns(
     (r'^$', 'home'),
     (r'^demo/$', 'demo'),
     (r'^api/test$', 'test'),
-    (r'^test$', execute_job),
     (r'^cc/search_business$', 'search_business'),
-    (r'^cc/search_set$', 'search_set'),
     (r'^cc/search_host$', 'search_cc_host'),
-    (r'^search_host$', 'search_host'),
-    (r'^add_host$', 'add_host'),
-    (r'^update_host$', 'update_host'),
-    (r'^del_host$', 'del_host'),
-    (r'^demo/search_ph$', 'search_ph'),
-    (r'^demo/get_mem$', 'get_mem'),
-    (r'^demo/get_disk$', 'get_disk')
+    (r'^get_ph_by_ip$', 'get_ph_by_ip'),
+    (r'^update_ip_config$', 'update_ip_config'),
+    (r'^demo/search_ph_host$', 'search_ph_host'),
+    (r'^demo/search_ph_list_by_ip$', 'search_ph_list_by_ip')
 )

@@ -6,15 +6,10 @@ from blueking.component.shortcuts import ComponentClient
 from utilities.response import *
 from conf.default import APP_ID, APP_TOKEN
 from utilities.error import try_exception
-import requests
 import json
 import sys
-from home_application.models import Host
-from home_application.models import PH
 from utilities.jobman import JobMan
-
-reload(sys)
-sys.setdefaultencoding('utf-8')
+from home_application.models import IPConfig, HostPerformance
 
 
 def home(request):
@@ -25,12 +20,7 @@ def home(request):
 
 
 def demo(request):
-    ip = request.GET.get('ip')
-    biz_id = request.GET.get('biz_id')
-    return render_mako_context(request, '/home_application/demo.html', {
-        'ip': ip,
-        'biz_id': biz_id
-    })
+    return render_mako_context(request, '/home_application/demo.html')
 
 
 def test(request):
@@ -52,25 +42,11 @@ def search_business(request):
     return success_result(res['data'])
 
 
-@try_exception('查询业务')
-def search_set(request):
-    biz_id = request.GET.get('biz_id')
-    client = ComponentClient()
-    params = {
-        'bk_app_code': APP_ID,
-        'bk_app_secret': APP_TOKEN,
-        'bk_username': 'admin',
-        'bk_biz_id': biz_id
-    }
-    res = client.cc.search_set(params)
-    if not res['result']:
-        return fail_result(res['message'])
-    return success_result(res['data'])
-
-
+@try_exception('查询主机')
 def search_cc_host(request):
     biz_id = request.GET.get('biz_id')
-    set_id = request.GET.get('set_id')
+    rq_data = json.loads(request.body)
+    ip = rq_data['bk_host_innerip']
     params = {
         'bk_app_code': APP_ID,
         'bk_app_secret': APP_TOKEN,
@@ -79,16 +55,11 @@ def search_cc_host(request):
             {
                 "bk_obj_id": "host",
                 "fields": [],
-                "condition": []
-            },
-            {
-                "bk_obj_id": "set",
-                "fields": [],
                 "condition": [
                     {
-                        "field": "bk_set_id",
-                        "operator": "$eq",
-                        "value": int(set_id)
+                        "field": "bk_host_innerip",
+                        "operator": "$regex",
+                        "value": ip
                     }
                 ]
             },
@@ -109,53 +80,38 @@ def search_cc_host(request):
     res = client.cc.search_host(params)
     if not res['result']:
         return fail_result(res['message'])
-    return success_result(res['data'])
+    return_data = []
+    for x in res['data']['info']:
+        ip = x['host']['bk_host_innerip']
+        conf = IPConfig.objects.filter(ip=ip)
+        if not len(conf):
+            x['is_period'] = False
+        else:
+            x['is_preiod'] = conf[0].is_period
+            x['cpu'] = conf[0].cpu
+            x['mem'] = conf[0].mem
+            x['disk'] = conf[0].disk
+        return_data.append(x)
+    return success_result(return_data)
 
 
-@try_exception('查询主机')
-def search_host(request):
-    ip = request.GET.get('ip')
-    host = Host.objects.filter(innerip__icontains=ip).all().values()
-    return success_result(list(host))
-
-
-@try_exception('添加主机')
-def add_host(request):
+@try_exception('改变主机获取性能状态')
+def update_ip_config(request):
     rq_data = json.loads(request.body)
-    host = Host.objects.create(**rq_data)
-    return success_result(host.id)
-
-
-@try_exception('删除主机')
-def del_host(request):
-    id = request.GET.get('id')
-    Host.objects.filter(id=id).delete()
-    return success_result()
-
-
-@try_exception('修改主机')
-def update_host(request):
-    id = request.GET.get('id')
-    rq_data = json.loads(request.body)
-    Host.objects.filter(id=id).update(**rq_data)
-    return success_result()
+    status = rq_data['status']
+    ip = rq_data['ip']
+    status = True if status == '1' else False
+    conf, is_create = IPConfig.objects.get_or_create(ip=ip)
+    conf.is_period = status
+    conf.save()
+    return success_result(conf.is_period)
 
 
 @try_exception('查看性能')
-def search_ph(request):
+def get_ph_by_ip(request):
     rq_data = json.loads(request.body)
-    ph = PH.objects.filter(ip=rq_data['ip']).order_by('-when_created')
-    if len(ph) > 12:
-        data = list(ph[0: 12].values())
-    else:
-        data = list(ph.values())
-    return success_result(data)
-
-
-@try_exception('查看内存')
-def get_mem(request):
-    ip = json.loads(request.body)['ip']
-    app_id = json.loads(request.body)['biz_id']
+    ip = rq_data['ip']
+    app_id = rq_data['biz_id']
     job = JobMan()
     host_list = [
         {
@@ -167,7 +123,13 @@ def get_mem(request):
         app_id: [
             {
                 "host": host_list,
-                "script_content": "free -m",
+                "script_content": """#!/bin/bash
+MEMORY=$(free -m | awk 'NR==2{printf "%.2f%%", $3*100/$2 }')
+DISK=$(df -h | awk '$NF=="/"{printf "%s", $5}')
+CPU=$(top -bn1 | grep load | awk '{printf "%.2f%%", $(NF-2)}')
+DATE=$(date "+%Y-%m-%d %H:%M:%S")
+echo -e "$DATE|$MEMORY|$DISK|$CPU"
+""",
                 "script_type": "1",
                 "account": "root"
             }
@@ -175,64 +137,32 @@ def get_mem(request):
     }
     job.execute(job_obj)
     _, content = job.get_log(ip)
-    s_list = content.split('\n')
-    mem = s_list[1]
-    mem_arr = [x for x in mem.split(' ') if x]
-    total = mem_arr[1]
-    use = mem_arr[2]
+    s_list = content.split('|')
+    s_list = [x for x in s_list if x]
+    conf, is_create = IPConfig.objects.get_or_create(ip=ip)
+    conf.cpu = float(s_list[3].strip('\n').strip('%'))
+    conf.mem = float(s_list[1].strip('\n').strip('%'))
+    conf.disk = float(s_list[2].strip('\n').strip('%'))
+    conf.save()
     return success_result(
-        [
-            {
-                'name': '总内存',
-                'value': int(total)
-            },
-            {
-                'name': '使用内存',
-                'value': int(use)
-            }
-        ]
-    )
-
-
-@try_exception('查看磁盘')
-def get_disk(request):
-    ip = json.loads(request.body)['ip']
-    app_id = json.loads(request.body)['biz_id']
-    job = JobMan()
-    host_list = [
         {
+            'cpu': s_list[3],
+            'mem': s_list[1],
+            'disk': s_list[2],
             'ip': ip,
-            'bk_cloud_id': '0'
+            'biz_id': app_id
         }
-    ]
-    job_obj = {
-        app_id: [
-            {
-                "host": host_list,
-                "script_content": "df -h",
-                "script_type": "1",
-                "account": "root"
-            }
-        ]
-    }
-    job.execute(job_obj)
-    _, content = job.get_log(ip)
-    s_list = content.split('\n')[1:]
-    disk = []
-    for s in s_list:
-        try:
-            s_arr = [x for x in s.split(' ') if x]
-            obj = {
-                'file': s_arr[0],
-                'size': s_arr[1],
-                'used': s_arr[2],
-                'avail': s_arr[3],
-                'use%': s_arr[4],
-                'mounted': s_arr[5]
-            }
-            disk.append(obj)
-        except Exception as e:
-            print e
-    return success_result(
-        disk
     )
+
+
+@try_exception('search_ph_host')
+def search_ph_host(request):
+    ip = IPConfig.objects.all().values()
+    return success_result(list(ip))
+
+
+@try_exception('search_ph_list_by_ip')
+def search_ph_list_by_ip(request):
+    ip = request.GET.get('ip')
+    host = HostPerformance.objects.filter(ip=ip).values()
+    return success_result(list(host))

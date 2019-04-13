@@ -2,10 +2,15 @@
 
 <%block name="content">
 <div id="demo" class="demo" v-cloak>
-    <div id="main" style="width: 40%; height: 300px;float: left"></div>
-    <div id="main2" style="width: 40%;height: 300px;float: right"></div>
-    <div style="clear: both"></div>
-    <i-table :columns="columns" :data="diskData"></i-table>
+    <i-select v-model="ip" placeholder="请选择IP" @on-change="changeHost"
+              style="display: inline-block;width: 340px">
+        <i-option :value="host.ip" v-for="(host, index) in hostList" :key="index">
+            {{ host.ip }}
+        </i-option>
+    </i-select>
+    <div id="main" style="width: 100%;height: 500px;border:1px solid #ddd;margin-top: 10px">
+        {{ phList }}
+    </div>
 </div>
 <style>
     [v-cloak] {
@@ -31,125 +36,84 @@
         el: '#demo',
         data() {
             return {
-                ip: '${ip}',
-                biz_id: '${biz_id}',
+                hostList: [],
                 phList: [],
-                title: '负载趋势图',
-                columns: [
-                    {
-                        title: '文件系统',
-                        key: 'file'
-                    },
-                    {
-                        title: '总大小',
-                        key: 'total'
-                    },
-                    {
-                        title: '已用大小',
-                        key: 'used'
-                    },
-                    {
-                        title: '可以大小',
-                        key: 'avail'
-                    },
-                    {
-                        title: '使用率',
-                        key: 'use%'
-                    },
-                    {
-                        title: '挂载点',
-                        key: 'mounted'
-                    },
-                ],
-                diskData: []
+                ip: ''
             }
         },
         mounted() {
-            this.searchPh();
-            this.searchMen();
-            this.searchDisk();
+            this.searchPhHost();
         },
         methods: {
-            searchPh() {
-                this.$http.post('search_ph', {ip: this.ip}).then(res => {
-                    this.phList = res.data;
-                    let params = {
-                        data: res.data,
-                        type: 'line',
-                        titleKey: 'ip',
-                        valueKey: 'cpu'
-                    };
-                    this.initChart(params);
-                })
-            },
-            searchMen() {
-                this.$http.post('get_mem', {ip: this.ip, biz_id: this.biz_id}).then(res => {
-                    this.initChart2(res.data);
-                })
-            },
-            searchDisk() {
-                this.$http.post('get_disk', {ip: this.ip, biz_id: this.biz_id}).then(res => {
-                    this.diskData = res.data;
-                })
-            },
-            initChart(params) {
-                let titleKey = params.titleKey ? params.titleKey : 'title';
-                let valueKey = params.valueKey ? params.valueKey : 'value';
-                let xAxis = [];
-                let series = [];
-                params.data.forEach((item) => {
-                    xAxis.push(item[titleKey]);
-                    series.push(item[valueKey])
+            searchPhHost() {
+                this.$http.post('search_ph_host').then(res => {
+                    if (res.result) {
+                        this.hostList = res.data;
+                        if (this.hostList.length > 0) {
+                            this.ip = this.hostList[0].ip;
+                            this.searchPhListByIp();
+                        }
+                    } else {
+                        this.$Message.error(res.message);
+                    }
                 });
+            },
+            changeHost() {
+                this.searchPhListByIp();
+            },
+            searchPhListByIp() {
+                this.$http.post('search_ph_list_by_ip?ip=' + this.ip).then(res => {
+                    if (res.result) {
+                        this.phList = res.data;
+                        this.initChart();
+                    } else {
+                        this.$Message.error(res.message);
+                    }
+                });
+            },
+            initChart() {
+                let dateList = [];
+                let cpuList = [];
+                let menList = [];
+                let diskList = [];
+                this.phList.forEach(item => {
+                    dateList.push(item.when_created);
+                    cpuList.push(item.cpu);
+                    menList.push(item.mem);
+                    diskList.push(item.disk);
+                });
+
                 let option = {
                     title: {
-                        text: params.title
+                        text: '主机状态图表'
                     },
                     tooltip: {},
                     legend: {
-                        data: [params.legend ? params.legend : '']
+                        data: ['CPU(%)', 'MEM(%)', 'DISK(%)']
                     },
                     xAxis: {
-                        data: xAxis
+                        data: dateList
                     },
                     yAxis: {},
-                    series: [{
-                        name: params.legend ? params.legend : '',
-                        type: params.type ? params.type : 'bar',
-                        data: series
-                    }]
-                };
-                let myChart = echarts.init(document.getElementById('main'));
-                myChart.setOption(option);
-            },
-            initChart2(data) {
-                let option = {
-                    title: {
-                        text: '内存使用情况',
-                        x: 'center'
-                    },
-                    tooltip: {
-                        trigger: 'item',
-                        formatter: "{a} <br/>{b} : {c} ({d}%)"
-                    },
                     series: [
                         {
-                            name: '内存使用情况',
-                            type: 'pie',
-                            radius: '55%',
-                            center: ['50%', '60%'],
-                            data: data,
-                            itemStyle: {
-                                emphasis: {
-                                    shadowBlur: 10,
-                                    shadowOffsetX: 0,
-                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
-                                }
-                            }
+                            name: 'CPU(%)',
+                            type: 'line',
+                            data: cpuList
+                        },
+                        {
+                            name: 'MEM(%)',
+                            type: 'line',
+                            data: menList
+                        },
+                        {
+                            name: 'DISK(%)',
+                            type: 'line',
+                            data: diskList
                         }
                     ]
                 };
-                let myChart = echarts.init(document.getElementById('main2'));
+                let myChart = echarts.init(document.getElementById('main'));
                 myChart.setOption(option);
             }
         },
