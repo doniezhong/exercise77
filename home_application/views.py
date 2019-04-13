@@ -164,5 +164,9 @@ def search_ph_host(request):
 @try_exception('search_ph_list_by_ip')
 def search_ph_list_by_ip(request):
     ip = request.GET.get('ip')
-    host = HostPerformance.objects.filter(ip=ip).values()
-    return success_result(list(host))
+    host = HostPerformance.objects.filter(ip=ip)
+    if(len(host) > 30):
+        data = list(host.values()[0:30])
+    else:
+        data = list(host.values())
+    return success_result(data)
