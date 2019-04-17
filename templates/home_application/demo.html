@@ -2,14 +2,7 @@
 
 <%block name="content">
 <div id="demo" class="demo" v-cloak>
-    <i-select v-model="ip" placeholder="请选择IP" @on-change="changeHost"
-              style="display: inline-block;width: 340px">
-        <i-option :value="host.ip" v-for="(host, index) in hostList" :key="index">
-            {{ host.ip }}
-        </i-option>
-    </i-select>
-    <div id="main" style="width: 100%;height: 500px;border:1px solid #ddd;margin-top: 10px">
-    </div>
+    <Spin size="large" fix v-if="loading"></Spin>
 </div>
 <style>
     [v-cloak] {
@@ -35,87 +28,12 @@
         el: '#demo',
         data() {
             return {
-                hostList: [],
-                phList: [],
-                ip: ''
+                loading: false
             }
         },
         mounted() {
-            this.searchPhHost();
         },
-        methods: {
-            searchPhHost() {
-                this.$http.post('search_ph_host').then(res => {
-                    if (res.result) {
-                        this.hostList = res.data;
-                        if (this.hostList.length > 0) {
-                            this.ip = this.hostList[0].ip;
-                            this.searchPhListByIp();
-                        }
-                    } else {
-                        this.$Message.error(res.message);
-                    }
-                });
-            },
-            changeHost() {
-                this.searchPhListByIp();
-            },
-            searchPhListByIp() {
-                this.$http.post('search_ph_list_by_ip?ip=' + this.ip).then(res => {
-                    if (res.result) {
-                        this.phList = res.data;
-                        this.initChart();
-                    } else {
-                        this.$Message.error(res.message);
-                    }
-                });
-            },
-            initChart() {
-                let dateList = [];
-                let cpuList = [];
-                let menList = [];
-                let diskList = [];
-                this.phList.forEach(item => {
-                    dateList.push(item.when_created);
-                    cpuList.push(item.cpu);
-                    menList.push(item.mem);
-                    diskList.push(item.disk);
-                });
-
-                let option = {
-                    title: {
-                        text: '主机CPU,MEM,DISK使用率曲线图'
-                    },
-                    tooltip: {},
-                    legend: {
-                        data: ['CPU(%)', 'MEM(%)', 'DISK(%)']
-                    },
-                    xAxis: {
-                        data: dateList
-                    },
-                    yAxis: {},
-                    series: [
-                        {
-                            name: 'CPU(%)',
-                            type: 'line',
-                            data: cpuList
-                        },
-                        {
-                            name: 'MEM(%)',
-                            type: 'line',
-                            data: menList
-                        },
-                        {
-                            name: 'DISK(%)',
-                            type: 'line',
-                            data: diskList
-                        }
-                    ]
-                };
-                let myChart = echarts.init(document.getElementById('main'));
-                myChart.setOption(option);
-            }
-        },
+        methods: {},
     })
 </script>
 <style>

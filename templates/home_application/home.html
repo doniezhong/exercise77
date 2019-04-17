@@ -1,20 +1,47 @@
 <%inherit file="/base.html"/>
 
 <%block name="content">
-<div id="app" class="app" v-cloak style="padding: 10px">
-    <div class="app-search" style="height: 40px;width: 100%">
-        <i-select v-model="formItem.biz_id" placeholder="请选择业务" @change="changeBusiness"
-                  style="display: inline-block;width: 140px">
-            <i-option :value="bus.bk_biz_id" v-for="(bus, index) in businessList" :key="index">
-                {{ bus.bk_biz_name }}
-            </i-option>
-        </i-select>
-        <i-input v-model="condition" placeholder="请输入IP" style="width: 140px;display: inline-block"></i-input>
-        <i-button type="primary" style="display: inline-block" @click="searchCCHost">查询</i-button>
-    </div>
-    <i-table :columns="columns" :data="hostList"></i-table>
+<div id="app" class="app" v-cloak>
+    <i-button type="primary" @click="add">添加</i-button>
+    <Modal v-model="showModal" width="600">
+        <p slot="header">
+            添加
+        </p>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label for="inputCount3" class="col-sm-3 control-label">input：</label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" id="inputCount3" placeholder="请输入">
+                </div>
+                <span class="text-danger mt5 fl">*</span>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">地区：</label>
+                <div class="col-sm-7">
+                    <select class="form-control">
+                        <option value="1">a</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group has-feedback">
+                <label class="control-label col-sm-3" for="introduction">个人说明：</label>
+                <div class="col-sm-7">
+                    <textarea class="form-control" rows="3" id="introduction"></textarea>
+                </div>
+            </div>
+        </form>
+        <div slot="footer">
+            <i-button type="primary" :loading="modal_loading" @click="save">确定</i-button>
+            <i-button type="default" :loading="modal_loading" @click="quit">取消</i-button>
+        </div>
+    </Modal>
+    <Spin size="large" fix v-if="loading"></Spin>
 </div>
 <style>
+    #home {
+        padding: 10px;
+    }
+
     [v-cloak] {
         display: none !important;
     }
@@ -38,209 +65,38 @@
         el: '#app',
         data() {
             return {
+                loading: false,
+                item: {
+                    biz_id: ''
+                },
                 condition: '',
                 businessList: [],
-                hostList: [],
-                formItem: {},
-                columns: [
-                    {
-                        title: 'IP地址',
-                        render: (h, params) => {
-                            return h('div', params.row.host.bk_host_innerip)
-                        }
-                    },
-                    {
-                        title: '系统名',
-                        render: (h, params) => {
-                            return h('div', params.row.host.bk_os_name)
-                        }
-                    },
-                    {
-                        title: '主机名',
-                        render: (h, params) => {
-                            return h('div', params.row.host.bk_host_name)
-                        }
-                    },
-                    {
-                        title: '云区域',
-                        render: (h, params) => {
-                            return h('div', params.row.host.bk_cloud_id[0].bk_inst_name)
-                        }
-                    },
-                    {
-                        title: 'Mem(%)',
-                        width: 100,
-                        render: (h, params) => {
-                            return h('div', params.row.mem)
-                        }
-                    },
-                    {
-                        title: 'Disk(%)',
-                        width: 100,
-                        render: (h, params) => {
-                            return h('div', params.row.disk)
-                        }
-                    },
-                    {
-                        title: 'Cpu(%)',
-                        width: 100,
-                        render: (h, params) => {
-                            return h('div', params.row.cpu)
-                        }
-                    },
-                    {
-                        title: '操作',
-                        render: (h, params) => {
-                            let is_preiod = params.row.is_preiod;
-                            let btnArr = [
-                                h('Button', {
-                                    props: {
-                                        type: 'primary',
-                                        size: 'small'
-                                    },
-                                    style: {
-                                        marginRight: '5px'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.searchPH(params.row, params.index)
-                                        }
-                                    }
-                                }, '查询性能'),
-                            ];
-                            if (is_preiod) {
-                                btnArr.push(
-                                    h('Button', {
-                                        props: {
-                                            type: 'error',
-                                            size: 'small'
-                                        },
-                                        on: {
-                                            click: () => {
-                                                this.stop(params.row, params.index)
-                                            }
-                                        }
-                                    }, '关闭')
-                                )
-                            } else {
-                                btnArr.push(
-                                    h('Button', {
-                                        props: {
-                                            type: 'info',
-                                            size: 'small'
-                                        },
-                                        on: {
-                                            click: () => {
-                                                this.start(params.row, params.index)
-                                            }
-                                        }
-                                    }, '开启')
-                                )
-                            }
-                            return h('div', btnArr);
-                        }
-                    }
-                ]
+                showModal: false,
+                modal_loading: false,
+                formItem: {}
             }
         },
         mounted() {
-            this.searchCCBusiness();
+            this.searchBusiness();
         },
         methods: {
-            searchCCBusiness() {
+            searchBusiness() {
                 this.$http.post('cc/search_business', {}).then(res => {
                     if (res.result) {
-                        this.businessList = res.data.info;
-                        if (this.businessList.length > 0) {
-                            this.formItem.biz_id = this.businessList[0].bk_biz_id;
-                            this.searchCCHost();
-                        }
+                        this.businessList = res.data;
                     } else {
                         this.$Message.error(res.message);
                     }
                 });
             },
-            start(row, index) {
-                this.$Modal.confirm({
-                    title: '',
-                    content: '<p>是否加入周期检查列表</p>',
-                    onOk: () => {
-                        this.$http.post('update_ip_config', {
-                            biz_id: this.formItem.biz_id,
-                            ip: row.host.bk_host_innerip,
-                            status: '1'
-                        }).then(res => {
-                            if (res.result) {
-                                this.searchCCHost();
-                                this.$Message.success("加入成功");
-                            } else {
-                                this.$Message.error(res.message);
-                            }
-                        });
-                    },
-                    onCancel: () => {
-                        this.$Message.info('已取消');
-                    }
-                });
+            add() {
+                this.showModal = true;
             },
-            stop(row, index) {
-                this.$Modal.confirm({
-                    title: '',
-                    content: '<p>是否从周期检查列表删除</p>',
-                    onOk: () => {
-                        this.$http.post('update_ip_config', {
-                            biz_id: this.formItem.biz_id,
-                            ip: row.host.bk_host_innerip,
-                            status: '0'
-                        }).then(res => {
-                            if (res.result) {
-                                this.searchCCHost();
-                                this.$Message.success("删除成功");
-                            } else {
-                                this.$Message.error(res.message);
-                            }
-                        });
-                    },
-                    onCancel: () => {
-                        this.$Message.info('已取消');
-                    }
-                });
+            save() {
+                this.showModal = false;
             },
-            searchCCHost() {
-                this.$http.post('cc/search_host?biz_id=' + this.formItem.biz_id, {
-                    bk_host_innerip: this.condition
-                }).then(res => {
-                    if (res.result) {
-                        this.hostList = res.data;
-                    } else {
-                        this.$Message.error(res.message);
-                    }
-                });
-            },
-            changeBusiness() {
-                this.condition = '';
-                this.searchCCHost();
-            },
-            searchPH(row, index) {
-                this.$Modal.confirm({
-                    title: '',
-                    content: '<p>是否查询系统资源使用情况</p>',
-                    onOk: () => {
-                        this.$http.post('get_ph_by_ip', {
-                            biz_id: this.formItem.biz_id,
-                            ip: row.host.bk_host_innerip
-                        }).then(res => {
-                            if (res.result) {
-                                this.searchCCHost();
-                            } else {
-                                this.$Message.error(res.message);
-                            }
-                        });
-                    },
-                    onCancel: () => {
-                        this.$Message.info('已取消');
-                    }
-                });
+            quit() {
+                this.showModal = false
             }
         },
     })
