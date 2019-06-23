@@ -22,10 +22,10 @@ from django.conf.global_settings import *  # noqa
 # 应用基本信息配置 (请按照说明修改)
 # ==============================================================================
 # 在蓝鲸智云开发者中心 -> 点击应用ID -> 基本信息 中获取 APP_ID 和 APP_TOKEN 的值
-APP_ID = 'donie-test'
-APP_TOKEN = 'b78c492f-f044-4b9d-8723-5db9b7b1773f'
+APP_ID = 'donie-exam'
+APP_TOKEN = '27d24117-9e2f-447b-ad80-36feed5a7171'
 # 蓝鲸智云开发者中心的域名，形如：http://paas.bking.com
-BK_PAAS_HOST = 'https://paasee-dev.bk.tencent.com'
+BK_PAAS_HOST = 'http://paas.dev2.com'
 
 # 请求官方 API 默认版本号，可选值为："v2" 或 ""；其中，"v2"表示规范化API，""表示未规范化API
 DEFAULT_BK_API_VER = 'v2'
@@ -45,10 +45,10 @@ CELERY_IMPORTS = (
 ENVIRONMENT = os.environ.get('BK_ENV', 'development')
 
 # 应用基本信息从环境变量中获取，未设置环境变量(如：本地开发)时，则用用户在文件开头的填写的值
-APP_ID = os.environ.get('APP_ID', APP_ID)
-APP_TOKEN = os.environ.get('APP_TOKEN', APP_TOKEN)
-BK_PAAS_HOST = os.environ.get('BK_PAAS_HOST', BK_PAAS_HOST)
-BK_PAAS_INNER_HOST = os.environ.get('BK_PAAS_INNER_HOST', BK_PAAS_HOST)
+# APP_ID = os.environ.get('APP_ID', APP_ID)
+# APP_TOKEN = os.environ.get('APP_TOKEN', APP_TOKEN)
+# BK_PAAS_HOST = os.environ.get('BK_PAAS_HOST', BK_PAAS_HOST)
+# BK_PAAS_INNER_HOST = os.environ.get('BK_PAAS_INNER_HOST', BK_PAAS_HOST)
 
 # 应用访问路径
 SITE_URL = '/'

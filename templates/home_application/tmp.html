@@ -1,0 +1,32 @@
+<%inherit file="/base.html"/>
+
+<%block name="content">
+<div id="app" class="app" v-cloak>
+
+</div>
+<style>
+    [v-cloak] {
+        display: none !important;
+    }
+</style>
+</%block>
+<script src="${STATIC_URL}conf/conf.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {}
+        },
+        watch: {
+        },
+        mounted() {
+        },
+        methods: {},
+    })
+</script>
+<style>
+    .app {
+        padding: 10px !important;
+        overflow: hidden;
+    }
+</style>
