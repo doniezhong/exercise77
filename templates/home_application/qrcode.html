@@ -1,0 +1,53 @@
+<%inherit file="/base.html"/>
+
+<%block name="content">
+<div id="app" class="app" v-cloak>
+    <div>
+        <sapn>URL</sapn>
+        <i-input v-model="url" style="display: inline;width: 400px"></i-input>
+        <i-button v-on:click="generate_qr">生成二维码</i-button>
+        <a target="_blank" href="/download_qrcode/">下载</a>
+    </div>
+    <div>
+        <img :src="imgb64">
+    </div>
+</div>
+<style>
+    [v-cloak] {
+        display: none !important;
+    }
+</style>
+</%block>
+<script src="${STATIC_URL}conf/conf.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                url: '',
+                imgb64: ''
+            }
+        },
+        mounted() {
+        },
+        methods: {
+            generate_qr() {
+                this.$http.get('generate_qrcode/', {params: {url: this.url}}).then(res => {
+                    if (res.result) {
+                        this.$Message.success('生成成功');
+                        this.imgb64 = 'data:image/jpeg;base64,' + res.data.img;
+                    }
+                })
+            },
+            download_qr() {
+                this.$http.get('download_qrcode/')
+            }
+        },
+    })
+</script>
+<style>
+    .app {
+        padding: 10px !important;
+        overflow: hidden;
+    }
+</style>

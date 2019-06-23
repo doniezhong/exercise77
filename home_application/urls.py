@@ -6,7 +6,8 @@ urlpatterns = patterns(
     'home_application.views',
     (r'^$', 'home'),
     (r'^demo/$', 'demo'),
-    (r'^api/test$', 'test'),
+    (r'^qrcode/$', 'qrcode'),
+    (r'^generate_qrcode/$', 'generate_qrcode'),
+    (r'^download_qrcode/$', 'download_qrcode'),
     (r'^cc/search_business$', 'search_business'),
-    (r'^cc/search_host$', 'search_host'),
 )
