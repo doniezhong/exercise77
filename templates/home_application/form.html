@@ -1,0 +1,57 @@
+<%inherit file="/base.html"/>
+
+<%block name="content">
+<div id="app" class="app" v-cloak>
+    <i-form :model="instance_obj" :label-width="80">
+            <form-item label="业务名称">
+                <i-select v-model="selected_biz">
+                    <i-option v-for="biz in bk_biz_list" :value="biz.bk_biz_id">{{ biz.bk_biz_name }}</i-option>
+                </i-select>
+            </form-item>
+            <form-item label="任务名称">
+                <i-input v-model="instance_obj.name" placeholder=""></i-input>
+            </form-item>
+            <form-item label="任务类型">
+                <radio-group v-model="instance_obj.type">
+                    <Radio label="imm">立即</Radio>
+                    <Radio label="per">周期</Radio>
+                </radio-group>
+                <Row>
+                    <i-col span="11">
+                        <date-picker type="datetime" format="yyyy-MM-dd HH:mm:ss" v-model="instance_obj.start_time"></date-picker>
+                    </i-col>
+                    <i-col span="2" style="text-align: center">每隔</i-col>
+                    <i-col span="3">
+                        <i-input v-model="instance_obj.period" placeholder=""></i-input>
+                    </i-col>
+                    <i-col span="6" style="text-align: center">分钟执行一次</i-col>
+                </Row>
+            </form-item>
+        </i-form>
+</div>
+<style>
+    [v-cloak] {
+        display: none !important;
+    }
+</style>
+</%block>
+<script src="${STATIC_URL}conf/conf.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {}
+        },
+        watch: {
+        },
+        mounted() {
+        },
+        methods: {},
+    })
+</script>
+<style>
+    .app {
+        padding: 10px !important;
+        overflow: hidden;
+    }
+</style>

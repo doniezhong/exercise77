@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from account.decorators import login_exempt
 from common.mymako import render_mako_context
 from blueking.component.shortcuts import get_client_by_request
+from home_application.api_manager import JobApiManager
 from utilities.response import *
 from conf.default import APP_ID, APP_TOKEN
 from utilities.error import try_exception
@@ -19,6 +20,26 @@ def home(request):
 
 def demo(request):
     return render_mako_context(request, '/home_application/demo.html')
+
+
+def curd(request):
+    return render_mako_context(request, '/home_application/curd.html')
+
+
+def api_test(request):
+    script_content = '''#!/bin/bash
+CPU=$(top -bn1 | grep load | awk '{printf "%.2f%%", $(NF-2)}')
+echo -e "CPU=$CPU"'''
+    job_api = JobApiManager(request)
+    res = job_api.execute_and_get_log(
+        bk_biz_id=2,
+        script_content=script_content,
+        ip_list=[{
+            'ip': '10.0.1.10',
+            'bk_cloud_id': 0
+        }]
+    )
+    return success_result(res)
 
 
 def test(request):

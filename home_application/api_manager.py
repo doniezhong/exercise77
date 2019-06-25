@@ -7,7 +7,6 @@ from blueking.component.shortcuts import get_client_by_request
 
 
 def api_exception(func):
-    @wraps(func)
     def wrapper(*args, **kwargs):
         res = func(*args, **kwargs)
         if res['result']:
@@ -24,7 +23,7 @@ class ApiManager(object):
     def __init__(self, request):
         self.client = get_client_by_request(request)
         if self.module:
-            self.module_client = getattr(self, self.module, None)
+            self.module_client = getattr(self.client, self.module, None)
         else:
             self.module_client = None
 
@@ -51,7 +50,7 @@ class JobApiManager(ApiManager):
             "ip_list": ip_list,
         }
         res = self.fast_execute_script(params)
-        return res['data']['job_instance_id']
+        return res
 
     def get_instance_log(self, bk_biz_id, instance_id):
         params = {
@@ -59,13 +58,13 @@ class JobApiManager(ApiManager):
             'job_instance_id': instance_id
         }
         res = self.get_job_instance_log(params)
-        if res['data'][0]['is_finished']:
-            step_result = res['data'][0]['step_results'][0]
+        if res[0]['is_finished']:
+            step_result = res[0]['step_results'][0]
             if step_result['ip_status'] == 9:
                 report = {}
                 for log in step_result['ip_logs']:
                     key = '%s|%s' % (log['ip'], log['bk_cloud_id'])
-                    value = log['log_content'].split('=')[1]
+                    value = log['log_content']
                     report[key] = value
 
                 return True, report
@@ -75,7 +74,7 @@ class JobApiManager(ApiManager):
             return False, {}
 
     def execute_and_get_log(self, bk_biz_id, script_content, ip_list):
-        instance_id = self.execute_script(bk_biz_id, script_content, ip_list)
+        instance_id = self.execute_script(bk_biz_id, script_content, ip_list)['job_instance_id']
         is_finished = False
         res = {}
         i = 0
