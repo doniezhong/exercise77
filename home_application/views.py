@@ -26,6 +26,10 @@ def curd(request):
     return render_mako_context(request, '/home_application/curd.html')
 
 
+def form(request):
+    return render_mako_context(request, '/home_application/form.html')
+
+
 def api_test(request):
     script_content = '''#!/bin/bash
 CPU=$(top -bn1 | grep load | awk '{printf "%.2f%%", $(NF-2)}')
