@@ -102,6 +102,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
     'account.middlewares.LoginMiddleware',   # 登录鉴权中间件
     'common.middlewares.CheckXssMiddleware',  # Xss攻击处理中间件
+    'common.middlewares.HandleExceptionMiddleware'
 )
 
 INSTALLED_APPS = (

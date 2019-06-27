@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import re
 import json
+
+from django.http import HttpResponse
+
 from settings import SITE_URL
 from common.log import logger
 from common.utils import html_escape, url_escape, texteditor_escape
@@ -113,3 +116,16 @@ class CheckXssMiddleware(object):
         }
         use_texteditor_paths = {}
         return (use_url_paths, use_texteditor_paths)
+
+
+class HandleExceptionMiddleware(object):
+    def process_exception(self, request, exception):
+        if isinstance(exception, Exception):
+            result = {
+                "result": False,
+                "message": exception.message,
+            }
+
+            return HttpResponse(json.dumps(result), content_type='application/json', status=200)
+
+        raise exception

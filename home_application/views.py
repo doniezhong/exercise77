@@ -31,6 +31,7 @@ def form(request):
 
 
 def api_test(request):
+    raise Exception('xxx')
     script_content = '''#!/bin/bash
 CPU=$(top -bn1 | grep load | awk '{printf "%.2f%%", $(NF-2)}')
 echo -e "CPU=$CPU"'''
