@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import base64
 import time
-from functools import wraps
 
 from blueking.component.shortcuts import get_client_by_request
 

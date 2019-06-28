@@ -67,4 +67,8 @@ def search_business(request):
     return success_result(res['data']['info'])
 
 
+# def aget_my_test(request):
+#     return success_result('xxx')
+
+
 
