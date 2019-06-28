@@ -9,6 +9,7 @@ from account.decorators import login_exempt
 from common.mymako import render_mako_context
 from blueking.component.shortcuts import get_client_by_request
 from home_application.api_manager import JobApiManager
+from home_application.utils import now_time, now_time_str
 from utilities.response import *
 from conf.default import APP_ID, APP_TOKEN
 from utilities.error import try_exception
@@ -31,7 +32,8 @@ def form(request):
 
 
 def api_test(request):
-    raise Exception('xxx')
+    now_time()
+    raise Exception(now_time_str())
     script_content = '''#!/bin/bash
 CPU=$(top -bn1 | grep load | awk '{printf "%.2f%%", $(NF-2)}')
 echo -e "CPU=$CPU"'''

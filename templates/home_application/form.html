@@ -8,11 +8,11 @@
             <i-input v-model="formItem.input" placeholder="Enter something..."></i-input>
         </form-item>
         <form-item label="Select">
-            <Select v-model="formItem.select">
+            <i-select v-model="formItem.select">
                 <i-option value="beijing">New York</i-option>
                 <i-option value="shanghai">London</i-option>
                 <i-option value="shenzhen">Sydney</i-option>
-            </Select>
+            </i-select>
         </form-item>
         <form-item label="DatePicker">
             <Row>
@@ -50,7 +50,7 @@
             <Slider v-model="formItem.slider" range></Slider>
         </form-item>
         <form-item label="Text">
-            <Input v-model="formItem.textarea" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="Enter something..."></Input>
+            <i-input v-model="formItem.textarea" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="Enter something..."></i-input>
         </form-item>
         <form-item>
             <i-button type="primary">Submit</i-button>
@@ -74,6 +74,13 @@
             }
         },
         watch: {
+            //深度监听
+            'instance_obj.bk_biz_id': {
+                handler(newval, oldval) {
+                    //do something
+                }
+            },
+            immediate: true
         },
         mounted() {
         },

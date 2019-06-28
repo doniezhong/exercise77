@@ -2,49 +2,7 @@
 
 <%block name="content">
 <div id="app" class="app" v-cloak>
-    <div style="margin-bottom: 20px">
-        <i-button type="primary" @click="addOne">添加一级导航栏</i-button>
-        <i-button type="primary" @click="modal1=true">生成导航栏</i-button>
-    </div>
-    <div v-for="(item, index) in navList">
-        <div id="one" style="padding: 10px" v-on:click="openUrl()">
-            <span>标题：</span>
-            <i-input style="width: 200px" v-model="item.one.title"></i-input>
-            <span>url：</span>
-            <i-input style="width: 200px" v-model="item.one.url"></i-input>
-            <i-button type="info" v-on:click="oneUp(index)">上移</i-button>
-            <i-button type="info" v-on:click="oneDown(index)">下移</i-button>
-            <i-button type="error" v-on:click="oneDelete(index)">删除</i-button>
-            <i-button type="primary" v-on:click="addTwo(index)">添加</i-button>
-        </div>
-        <div v-for="(sitem, sindex) in item.two" style="margin-left: 80px; padding: 10px">
-            <span>标题：</span>
-            <i-input style="width: 200px" v-model="sitem.title"></i-input>
-            <span>url：</span>
-            <i-input style="width: 200px" v-model="sitem.url"></i-input>
-            <i-button type="info" v-on:click="twoUp(index, sindex)">上移</i-button>
-            <i-button type="info" v-on:click="twoDown(index, sindex)">下移</i-button>
-            <i-button type="error" v-on:click="twoDelete(index, sindex)">删除</i-button>
-        </div>
-    </div>
-    <div>
-        <Modal v-model="modal1">
-            <i-menu theme="light">
-                <Submenu v-for="item in navList" name="1">
 
-                    <template slot="title">
-                        <a :href="item.one.url">
-                            {{ item.one.title }}
-                        </a>
-                    </template>
-
-                    <a v-for="sitem in item.two" :href="sitem.url" target="_Blank">
-                        <menu-item name="1-1">{{ sitem.title }}</menu-item>
-                    </a>
-                </Submenu>
-            </i-menu>
-        </Modal>
-    </div>
 </div>
 <style>
     [v-cloak] {
@@ -57,57 +15,13 @@
     new Vue({
         el: '#app',
         data() {
-            return {
-                navList: [],
-                modal1: false
-            }
+            return {}
+        },
+        watch: {
         },
         mounted() {
         },
-        methods: {
-            addOne() {
-                this.navList.push({
-                    one: {title: "", url: ""},
-                    two: []
-                })
-            },
-            addTwo(index) {
-                this.navList[index].two.push({
-                    title: "",
-                    url: ""
-                });
-            },
-            oneUp(index) {
-                if (index > 0) {
-                    this.navList.splice(index - 1, 2, this.navList[index], this.navList[index - 1]);
-                }
-            },
-            oneDown(index) {
-                if (index < this.navList.length - 1) {
-                    this.navList.splice(index, 2, this.navList[index + 1], this.navList[index]);
-                }
-            },
-            oneDelete(index) {
-                this.navList.splice(index, 1)
-            },
-            twoUp(index, sindex) {
-                if (sindex > 0) {
-                    let sList = this.navList[index].two;
-                    this.navList[index].two.splice(sindex - 1, 2, sList[sindex], sList[sindex - 1]);
-                }
-            },
-            twoDown(index, sindex) {
-                let sList = this.navList[index].two;
-                if (sindex < sList.length - 1) {
-                    this.navList[index].two.splice(sindex, 2, sList[sindex + 1], sList[sindex]);
-                }
-            },
-            twoDelete(index, sindex) {
-                this.navList[index].two.splice(sindex, 1)
-            },
-            openUrl(url) {
-            }
-        },
+        methods: {},
     })
 </script>
 <style>
@@ -116,4 +30,3 @@
         overflow: hidden;
     }
 </style>
-
