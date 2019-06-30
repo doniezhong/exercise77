@@ -17,8 +17,10 @@
         <form-item label="DatePicker">
             <Row>
                 <i-col span="11">
-                    <date-picker type="date" placeholder="Select date" format="yyyy-MM-dd HH:mm:ss" v-model="formItem.date"></date-picker>
-                    <date-picker type="datetime" placeholder="Select date" format="yyyy-MM-dd HH:mm:ss" v-model="formItem.date"></date-picker>
+                    <date-picker type="date" placeholder="Select date" format="yyyy-MM-dd HH:mm:ss"
+                                 v-model="formItem.date"></date-picker>
+                    <date-picker type="datetime" placeholder="Select date" format="yyyy-MM-dd HH:mm:ss"
+                                 v-model="formItem.date"></date-picker>
                 </i-col>
                 <i-col span="2" style="text-align: center">-</i-col>
                 <i-col span="11">
@@ -50,7 +52,14 @@
             <Slider v-model="formItem.slider" range></Slider>
         </form-item>
         <form-item label="Text">
-            <i-input v-model="formItem.textarea" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="Enter something..."></i-input>
+            <i-input v-model="formItem.textarea" type="textarea" :autosize="{minRows: 2,maxRows: 5}"
+                     placeholder="Enter something..."></i-input>
+        </form-item>
+        <form-item label="Upload">
+            <Upload :before-upload="handleUpload" action="">
+                <i-button icon="ios-cloud-upload-outline">点击上传</i-button>
+                <span v-if="file != null">{{ file.name }}</span>
+            </Upload>
         </form-item>
         <form-item>
             <i-button type="primary">Submit</i-button>
@@ -84,7 +93,12 @@
         },
         mounted() {
         },
-        methods: {},
+        methods: {
+            handleUpload(file) {
+                this.file = file;
+                return false;
+            }
+        },
     })
 </script>
 <style>
