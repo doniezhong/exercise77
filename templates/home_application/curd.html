@@ -22,6 +22,13 @@
                 <i-button type="error" size="small" @click="remove(row)">Delete</i-button>
             </div>
         </i-table>
+        <Page style="margin-top: 30px"
+              :total="page.total"
+              :page-size="page.page_size"
+              :current="page.current"
+              @on-change="page_change"
+              @on-page-size-change="page_size_change"
+              show-sizer />
     </div>
 
     <Modal v-model="modal1" title="新增">
@@ -89,6 +96,13 @@
                     }
                 ],
                 t_data: [],
+                list_data: [],
+                //分页
+                page: {
+                    current: 1,
+                    page_size: 10,
+                    total: 0,
+                },
                 //模态框
                 modal1: false,
                 modal2: false,
@@ -97,6 +111,15 @@
         },
         watch: {},
         mounted() {
+            let data = [];
+            for (let i = 0; i < 100; i++){
+                data.push({
+                    name: i
+                })
+            }
+            this.list_data = data;
+            this.page.total = this.list_data.length;
+            this.get_page();
         },
         methods: {
             get_biz_list() {
@@ -110,6 +133,20 @@
                     }
                 })
             },
+            page_change(page) {
+                this.page.current = page;
+                this.get_page();
+            },
+            page_size_change(page_size) {
+                this.page.page_size = page_size;
+                this.page.current = 1;
+                this.get_page();
+            },
+            get_page(){
+                let start = (this.page.current-1) * this.page.page_size;
+                let end = start + this.page.page_size;
+                this.t_data = this.list_data.slice(start, end)
+            },
             get_list() {
                 //查询
                 let search_params = {};
@@ -120,7 +157,9 @@
                 });
                 this.$http.get('list', {params: search_params}).then(res => {
                     if (res.result) {
-                        this.t_data = res.data;
+                        this.list_data = res.data;
+                        this.page.total = this.list_data.length;
+                        this.get_page();
                     }
                     else {
                         this.$Message.error(res.message)

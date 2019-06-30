@@ -7,6 +7,6 @@
 *.iml
 out
 gen
-.pyc
+*.pyc
 .DS_Store
 workspace.xml

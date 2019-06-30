@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+
 from django.db import models
+
+from home_application.utils import datetime_to_str
 
 
 class BaseOperateModel(models.Model):
@@ -10,5 +14,12 @@ class BaseOperateModel(models.Model):
     update_time = models.DateTimeField(auto_now=True)
 
     def to_dic(self):
-        result_dict = dict([(f.name, getattr(self, f.name)) for f in self._meta.fields])
+        result_dict = {}
+        for f in self._meta.fields:
+            f_val = getattr(self, f.name, None)
+            if isinstance(f_val, datetime):
+                f_val = datetime_to_str(f_val)
+
+            result_dict[f.name] = f_val
+
         return result_dict
