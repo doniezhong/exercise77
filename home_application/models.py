@@ -23,3 +23,21 @@ class BaseOperateModel(models.Model):
             result_dict[f.name] = f_val
 
         return result_dict
+
+    class Meta:
+        abstract = True
+
+
+class Tmp(BaseOperateModel):
+    TCHOICES = (
+        ('1', '一'),
+        ('2', '二'),
+        ('3', '三'),
+        ('4', '四'),
+    )
+
+    tchar = models.CharField(max_length=20, choices=TCHOICES)
+    ttext = models.TextField()
+    tint = models.IntegerField()
+    tdate = models.DateField()
+    tbinary = models.BinaryField()

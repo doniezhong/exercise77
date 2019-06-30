@@ -2,6 +2,7 @@
 
 <%block name="content">
 <div id="app" class="app" v-cloak>
+    <p></p>
     <div>
         <label>文本搜索</label>
         <i-input v-model="search_obj.input_val" style="width: 200px"></i-input>
@@ -28,7 +29,7 @@
               :current="page.current"
               @on-change="page_change"
               @on-page-size-change="page_size_change"
-              show-sizer />
+              show-sizer/>
     </div>
 
     <Modal v-model="modal1" title="新增">
@@ -48,7 +49,7 @@
         </div>
     </Modal>
 
-    <Modal v-model="modal2" title="修改">
+    <Modal v-model="modal2" title="修改" fullscreen>
         <i-form :model="instance_obj" :label-width="80">
             <form-item label="业务名称">
                 <i-select v-model="selected_biz">
@@ -96,9 +97,10 @@
                     }
                 ],
                 t_data: [],
-                list_data: [],
                 //分页
                 page: {
+                    list_data: [],
+                    td: 't_data',
                     current: 1,
                     page_size: 10,
                     total: 0,
@@ -107,19 +109,21 @@
                 modal1: false,
                 modal2: false,
                 instance_obj: {},
+                //当前操作对象
+                c_obj: null
             }
         },
         watch: {},
         mounted() {
             let data = [];
-            for (let i = 0; i < 100; i++){
+            for (let i = 0; i < 100; i++) {
                 data.push({
                     name: i
                 })
             }
-            this.list_data = data;
-            this.page.total = this.list_data.length;
-            this.get_page();
+            this.page.list_data = data;
+            this.page.total = this.page.list_data.length;
+            this.get_page(this.page);
         },
         methods: {
             get_biz_list() {
@@ -135,17 +139,17 @@
             },
             page_change(page) {
                 this.page.current = page;
-                this.get_page();
+                this.get_page(this.page);
             },
             page_size_change(page_size) {
                 this.page.page_size = page_size;
                 this.page.current = 1;
-                this.get_page();
+                this.get_page(this.page);
             },
-            get_page(){
-                let start = (this.page.current-1) * this.page.page_size;
-                let end = start + this.page.page_size;
-                this.t_data = this.list_data.slice(start, end)
+            get_page(page_obj) {
+                let start = (page_obj.current - 1) * page_obj.page_size;
+                let end = start + page_obj.page_size;
+                this[page_obj.td] = page_obj.list_data.slice(start, end)
             },
             get_list() {
                 //查询
@@ -157,9 +161,9 @@
                 });
                 this.$http.get('list', {params: search_params}).then(res => {
                     if (res.result) {
-                        this.list_data = res.data;
-                        this.page.total = this.list_data.length;
-                        this.get_page();
+                        this.page.list_data = res.data;
+                        this.page.total = this.page.list_data.length;
+                        this.get_page(this.page);
                     }
                     else {
                         this.$Message.error(res.message)
@@ -223,7 +227,8 @@
                             }
                         })
                     },
-                    onCancel: () => {}
+                    onCancel: () => {
+                    }
                 });
             },
             test() {

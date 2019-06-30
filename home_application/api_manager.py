@@ -35,6 +35,31 @@ class ApiManager(object):
 class CCApiManager(ApiManager):
     module = 'cc'
 
+    def get_hosts_by_biz(self, bk_biz_ids):
+        if isinstance(bk_biz_ids, int):
+            bk_biz_ids = [bk_biz_ids]
+
+        params = {
+            "condition": [
+                {
+                    "bk_obj_id": "host",
+                    "fields": [],
+                    "condition": []
+                }, {
+                    "bk_obj_id": "biz",
+                    "fields": [],
+                    "condition": [
+                        {
+                            "field": "bk_inst_id",
+                            "operator": "$in",
+                            "value": bk_biz_ids
+                        }
+                    ]
+                },
+            ]
+        }
+        return self.search_host(params)
+
 
 class JobApiManager(ApiManager):
     module = 'job'
