@@ -62,10 +62,15 @@
             </Upload>
         </form-item>
         <form-item>
-            <i-button type="primary">Submit</i-button>
+            <i-button type="primary" @click="submit">Submit</i-button>
             <i-button style="margin-left: 8px">Cancel</i-button>
         </form-item>
     </i-form>
+    <div>
+        <!-- 前端插件 -->
+        <p>树形目录</p>
+        <Tree :data="tree_data" @on-select-change="tree_select_change"></Tree>
+    </div>
 </div>
 <style>
     [v-cloak] {
@@ -80,6 +85,39 @@
         data() {
             return {
                 formItem: {},
+                file: null,
+                tree_data: [
+                    {
+                        title: 'parent 1',
+                        expand: true,
+                        children: [
+                            {
+                                title: 'parent 1-1',
+                                expand: false,
+                                children: [
+                                    {
+                                        title: 'leaf 1-1-1'
+                                    },
+                                    {
+                                        title: 'leaf 1-1-2'
+                                    }
+                                ]
+                            },
+                            {
+                                title: 'parent 1-2',
+                                expand: false,
+                                children: [
+                                    {
+                                        title: 'leaf 1-2-1'
+                                    },
+                                    {
+                                        title: 'leaf 1-2-1'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             }
         },
         watch: {
@@ -97,6 +135,14 @@
             handleUpload(file) {
                 this.file = file;
                 return false;
+            },
+            tree_select_change(selected_nodes, node) {
+                console.log(selected_nodes);
+                console.log(node)
+            },
+            submit() {
+                console.log(this.formItem.time);
+                console.log(this.formItem.date);
             }
         },
     })
