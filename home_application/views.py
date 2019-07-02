@@ -9,6 +9,7 @@ from account.decorators import login_exempt
 from common.mymako import render_mako_context
 from blueking.component.shortcuts import get_client_by_request
 from home_application.api_manager import JobApiManager
+from home_application.resource import Chart
 from home_application.utils import now_time, now_time_str
 from utilities.response import *
 from conf.default import APP_ID, APP_TOKEN
@@ -29,6 +30,10 @@ def curd(request):
 
 def form(request):
     return render_mako_context(request, '/home_application/form.html')
+
+
+def chart(request):
+    return render_mako_context(request, '/home_application/chart.html')
 
 
 def api_test(request):
@@ -68,7 +73,21 @@ def search_business(request):
 
 
 def aget_my_test(request):
-    return success_result('xxx')
+    series = [
+        {
+            'name': '正序',
+            'data': range(0, 10),
+        },
+        {
+            'name': '倒序',
+            'data': range(9, -1, -1),
+        }
+    ]
+
+    test_chart = Chart('line', axis=range(0, 10), series=series, title='test')
+    chart_datas = []
+    chart_datas.append(test_chart.chart_data)
+    return success_result(chart_datas)
 
 
 

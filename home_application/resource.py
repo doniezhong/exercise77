@@ -64,3 +64,63 @@ def simple_get_list(query_dict, db_model):
     search_dict = get_search_dict(query_dict)
     model_list = db_model.objects.filter(**search_dict)
     return [m.to_dict() for m in model_list]
+
+
+class LineChart(object):
+    type = 'line'
+
+    def __init__(self, axis, series, title='', sub_title=''):
+        self.axis = axis
+        self.series = []
+        for s in series:
+            self.series.append(dict(s, type=self.type))
+
+        self.title = {
+            "text": title,
+            "sub_text": sub_title
+        }
+
+    @property
+    def chart_data(self):
+        return {
+            "title": self.title,
+            "xAxis": self.axis,
+            "series": self.series,
+        }
+
+
+class BarChart(LineChart):
+    type = 'bar'
+
+
+class HorBarChart(object):
+    def __init__(self, axis, series, title='', sub_title=''):
+        self.axis = axis
+        self.series = []
+        for s in series:
+            self.series.append(dict(s, type='bar'))
+
+        self.title = {
+            "text": title,
+            "sub_text": sub_title
+        }
+
+    @property
+    def chart_data(self):
+        return {
+            "title": self.title,
+            "yAxis": self.axis,
+            "series": self.series,
+        }
+
+
+class Chart(object):
+    CHARTMAP = {
+        'line': LineChart,
+        'bar': BarChart,
+        'hor_bar': HorBarChart,
+    }
+
+    def __new__(cls, type, *args, **kwargs):
+        type_cls = cls.CHARTMAP.get(type)
+        return type_cls(*args, **kwargs)
