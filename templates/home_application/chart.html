@@ -25,7 +25,7 @@
         watch: {},
         mounted() {
             this.$http.get('my_test').then(res => {
-                this.render_chart('line', res.data)
+                this.render_chart('funnel', res.data)
             })
         },
         methods: {
@@ -42,7 +42,7 @@
             },
             get_chart() {
                 this.$http.get('get_chart').then(res => {
-                    this.render_chart('line', res.data);
+                    this.render_chart('pie', res.data);
                 })
             }
         },

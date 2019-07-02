@@ -114,11 +114,33 @@ class HorBarChart(object):
         }
 
 
+class PieChart(object):
+    def __init__(self, series, title='', sub_title=''):
+        self.series =series
+        self.title = {
+            "text": title,
+            "sub_text": sub_title
+        }
+
+    @property
+    def chart_data(self):
+        return {
+            "title": self.title,
+            "series": self.series,
+        }
+
+
+class FunnelChart(PieChart):
+    pass
+
+
 class Chart(object):
     CHARTMAP = {
         'line': LineChart,
         'bar': BarChart,
         'hor_bar': HorBarChart,
+        'pie': PieChart,
+        'funnel': FunnelChart,
     }
 
     def __new__(cls, type, *args, **kwargs):

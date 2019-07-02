@@ -76,15 +76,15 @@ def aget_my_test(request):
     series = [
         {
             'name': '正序',
-            'data': range(0, 10),
+            'value': 1,
         },
         {
             'name': '倒序',
-            'data': range(9, -1, -1),
+            'value': 2,
         }
     ]
 
-    test_chart = Chart('line', axis=range(0, 10), series=series, title='test')
+    test_chart = Chart('pie', series=series, title='test')
     chart_datas = []
     chart_datas.append(test_chart.chart_data)
     return success_result(chart_datas)
