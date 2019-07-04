@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import copy
+
 import xlrd
 import xlwt
 from django.http import FileResponse
@@ -146,3 +148,36 @@ class Chart(object):
     def __new__(cls, type, *args, **kwargs):
         type_cls = cls.CHARTMAP.get(type)
         return type_cls(*args, **kwargs)
+
+
+class CCTopoTreeHandle(object):
+
+    @staticmethod
+    def get_inst_key(inst):
+        try:
+            return "%s|%s" % (inst['bk_obj_id'], inst['bk_inst_id'])
+        except KeyError:
+            return None
+
+    def foreach_topo_tree(self, topo, func=None, topo_link=[]):
+        # 从上到下遍历topo树
+        if isinstance(topo, dict):
+            # 记录层级
+            inst_key = self.get_inst_key(topo)
+            if not inst_key:
+                return None
+
+            c_topo_link = copy.deepcopy(topo_link)
+            c_topo_link.append(inst_key)
+            # 执行操作
+            if func:
+                func(topo, c_topo_link)
+
+            child = topo.get('child')
+            if child:
+                self.foreach_topo_tree(child, func, c_topo_link)
+
+        if isinstance(topo, list):
+            for item in topo:
+                c_topo_link = copy.deepcopy(topo_link)
+                self.foreach_topo_tree(item, func, c_topo_link)
