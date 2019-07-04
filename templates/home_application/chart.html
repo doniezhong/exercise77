@@ -25,7 +25,7 @@
         watch: {},
         mounted() {
             this.$http.get('my_test').then(res => {
-                this.render_chart('funnel', res.data)
+                this.render_chart('funnel', this.chart_selectors, res.data)
             })
         },
         methods: {
@@ -34,15 +34,15 @@
                     this.chart_selectors.push("chart" + i)
                 }
             },
-            render_chart(type, data) {
+            render_chart(type, selectors, data) {
                 this.init_chart_selectors(data);
                 setTimeout(() => {
-                    createCharts(type, vm.chart_selectors, data)
+                    createCharts(type, selectors, data)
                 }, 300);
             },
             get_chart() {
                 this.$http.get('get_chart').then(res => {
-                    this.render_chart('pie', res.data);
+                    this.render_chart('pie', this.chart_selectors, res.data);
                 })
             }
         },

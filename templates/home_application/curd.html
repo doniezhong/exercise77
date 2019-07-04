@@ -86,6 +86,11 @@
                 //表格
                 t_columns: [
                     {
+                        type: 'selection',
+                        width: 60,
+                        align: 'center'
+                    },
+                    {
                         title: '名称',
                         key: 'name',
                     },
@@ -151,6 +156,11 @@
                 let end = start + page_obj.page_size;
                 this[page_obj.td] = page_obj.list_data.slice(start, end)
             },
+            init_page(page_obj, data) {
+                page_obj.list_data = data;
+                page_obj.total = this.page.list_data.length;
+                this.get_page(page_obj);
+            },
             get_list() {
                 //查询
                 let search_params = {};
@@ -161,9 +171,7 @@
                 });
                 this.$http.get('list', {params: search_params}).then(res => {
                     if (res.result) {
-                        this.page.list_data = res.data;
-                        this.page.total = this.page.list_data.length;
-                        this.get_page(this.page);
+                        this.init(this.page, res.data);
                     }
                     else {
                         this.$Message.error(res.message)
