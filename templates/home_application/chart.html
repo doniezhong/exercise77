@@ -29,13 +29,13 @@
             })
         },
         methods: {
-            init_chart_selectors(chart_data) {
+            init_chart_selectors(selectors, chart_data) {
                 for (let i = 0; i < chart_data.length; i++) {
-                    this.chart_selectors.push("chart" + i)
+                    selectors.push("chart" + i)
                 }
             },
             render_chart(type, selectors, data) {
-                this.init_chart_selectors(data);
+                this.init_chart_selectors(selectors, data);
                 setTimeout(() => {
                     createCharts(type, selectors, data)
                 }, 300);

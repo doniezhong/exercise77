@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import base64
+import json
 import os
 
 from django.conf import settings
@@ -76,17 +77,18 @@ def aget_my_test(request):
     series = [
         {
             'name': '正序',
-            'value': 1,
+            'value': 100,
         },
         {
             'name': '倒序',
-            'value': 2,
+            'value': 266,
         }
     ]
 
     test_chart = Chart('pie', series=series, title='test')
     chart_datas = []
-    chart_datas.append(test_chart.chart_data)
+    for i in range(5):
+        chart_datas.append(test_chart.chart_data)
     return success_result(chart_datas)
 
 

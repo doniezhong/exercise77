@@ -150,7 +150,7 @@ class Chart(object):
         return type_cls(*args, **kwargs)
 
 
-class CCTopoTreeHandle(object):
+class TopoTreeHandle(object):
 
     @staticmethod
     def get_inst_key(inst):
