@@ -38,50 +38,6 @@ def chart(request):
     return render_mako_context(request, '/home_application/chart.html')
 
 
-def api_test(request):
-    # celery
-    # my_test.apply_async(args=['HEIHA'], eta=time_operation(now_time(), seconds=10))
-    cc_api = CCApiManager(request)
-    bizs = cc_api.search_business()
-    res = cc_api.search_biz_inst_topo({'bk_biz_id': 3})
-    params = {
-        "condition": [
-            {
-                "bk_obj_id": "host",
-                "fields": [],
-                "condition": []
-            }, {
-                "bk_obj_id": "biz",
-                "fields": [],
-                "condition": []
-            },
-            {
-                "bk_obj_id": "object",
-                "fields": [],
-                "condition": [
-                ]
-            }
-        ]
-    }
-    host_res = cc_api.search_host(params)
-    for host in host_res['info']:
-        if host['module']:
-            i = 1
-    # cc_api = CCApiManager(request)
-    # res = cc_api.search_module({
-    #     "bk_biz_id": 2,
-    #     "fields": [
-    #     ],
-    #     "condition": {
-    #         "bk_module_id": "13"
-    #     },
-    #     "page": {
-    #         "start": 0,
-    #         "limit": 10
-    #     }})
-    return success_result()
-
-
 def test(request):
     username = request.user.username
     return success_result(username)
