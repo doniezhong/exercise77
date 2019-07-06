@@ -73,13 +73,14 @@ class CCApiManager(ApiManager):
                     "condition": [
                         {
                             "field": "bk_inst_id",
-                            "operator": "$in",
-                            "value": bk_biz_ids
+                            "operator": "$eq",
+                            "value": ''
                         }
                     ]
                 },
             ]
         }
+        return ''
 
 
 class JobApiManager(ApiManager):

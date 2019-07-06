@@ -11,7 +11,7 @@ from common.mymako import render_mako_context
 from blueking.component.shortcuts import get_client_by_request
 from home_application.api_manager import JobApiManager, CCApiManager
 from home_application.celery_tasks import my_test
-from home_application.resource import Chart
+from home_application.resource import Chart, TopoTreeHandle
 from home_application.utils import now_time, now_time_str, time_operation
 from utilities.response import *
 from conf.default import APP_ID, APP_TOKEN
@@ -40,7 +40,33 @@ def chart(request):
 
 def api_test(request):
     # celery
-    my_test.apply_async(args=['HEIHA'], eta=time_operation(now_time(), seconds=10))
+    # my_test.apply_async(args=['HEIHA'], eta=time_operation(now_time(), seconds=10))
+    cc_api = CCApiManager(request)
+    bizs = cc_api.search_business()
+    res = cc_api.search_biz_inst_topo({'bk_biz_id': 3})
+    params = {
+        "condition": [
+            {
+                "bk_obj_id": "host",
+                "fields": [],
+                "condition": []
+            }, {
+                "bk_obj_id": "biz",
+                "fields": [],
+                "condition": []
+            },
+            {
+                "bk_obj_id": "object",
+                "fields": [],
+                "condition": [
+                ]
+            }
+        ]
+    }
+    host_res = cc_api.search_host(params)
+    for host in host_res['info']:
+        if host['module']:
+            i = 1
     # cc_api = CCApiManager(request)
     # res = cc_api.search_module({
     #     "bk_biz_id": 2,
@@ -72,6 +98,36 @@ def search_business(request):
     if not res['result']:
         return fail_result(res['message'])
     return success_result(res['data']['info'])
+
+
+def apost_topo_tree(request):
+    cc_api = CCApiManager(request)
+    bk_biz_id = request.GET.get('bk_biz_id')
+    if bk_biz_id:
+        bk_biz_list = [bk_biz_id] if isinstance(bk_biz_id, int) else bk_biz_id
+    else:
+        api_result = cc_api.search_business()
+        bk_biz_list = [biz['bk_biz_id'] for biz in api_result['info']]
+
+    bizs_topo = []
+    for biz in bk_biz_list:
+        params = {
+            'bk_biz_id': biz
+        }
+        topo = cc_api.search_biz_inst_topo(params)
+        bizs_topo.extend(topo)
+
+    handler = TopoTreeHandle()
+
+    def hanld_node(node, node_link):
+        node['title'] = node['bk_inst_name']
+        if node['bk_obj_id'] == 'biz':
+            node['expand'] = True
+        else:
+            node['expand'] = False
+
+    handler.foreach_topo_tree(bizs_topo, hanld_node)
+    return success_result(bizs_topo)
 
 
 def aget_my_test(request):

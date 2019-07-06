@@ -27,9 +27,13 @@ from django.conf.global_settings import *  # noqa
 # # 蓝鲸智云开发者中心的域名，形如：http://paas.bking.com
 # BK_PAAS_HOST = 'http://paas.dev2.com'
 
-APP_ID = 'donie-test'
-APP_TOKEN = 'b78c492f-f044-4b9d-8723-5db9b7b1773f'
-BK_PAAS_HOST = 'https://paasee-dev.bk.tencent.com'
+# APP_ID = 'donie-test'
+# APP_TOKEN = 'b78c492f-f044-4b9d-8723-5db9b7b1773f'
+# BK_PAAS_HOST = 'https://paasee-dev.bk.tencent.com'
+
+APP_ID = 'donie'
+APP_TOKEN = '3be5f0ba-3993-4178-9667-50140be71ca9'
+BK_PAAS_HOST = 'https://paas.cwbk.com'
 
 # 请求官方 API 默认版本号，可选值为："v2" 或 ""；其中，"v2"表示规范化API，""表示未规范化API
 DEFAULT_BK_API_VER = 'v2'
