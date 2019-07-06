@@ -43,5 +43,6 @@ def time_loads(str):
     return utc_to_local(utc_st)
 
 
-def time_operation(dtime, ):
-    timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0)
+def time_operation(dtime, **kwargs):
+    # timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0)
+    return dtime + timedelta(**kwargs)

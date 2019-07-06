@@ -69,7 +69,7 @@
     <div>
         <!-- 前端插件 -->
         <p>树形目录</p>
-        <Tree :data="tree_data" @on-select-change="tree_select_change"></Tree>
+        <Tree :data="tree_data" @on-select-change="tree_select_change" children-key="children"></Tree>
     </div>
 </div>
 <style>

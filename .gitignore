@@ -10,3 +10,6 @@ gen
 *.pyc
 .DS_Store
 workspace.xml
+*.seed
+*.pid.lock
+*.pid

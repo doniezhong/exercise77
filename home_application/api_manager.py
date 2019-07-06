@@ -50,7 +50,7 @@ class CCApiManager(ApiManager):
                     "fields": [],
                     "condition": [
                         {
-                            "field": "bk_inst_id",
+                            "field": "bk_biz_id",
                             "operator": "$in",
                             "value": bk_biz_ids
                         }
@@ -59,6 +59,27 @@ class CCApiManager(ApiManager):
             ]
         }
         return self.search_host(params)
+
+    def get_hosts_by_inst(self, bk_obj_id, bk_inst_id):
+        params = {
+            "condition": [
+                {
+                    "bk_obj_id": "host",
+                    "fields": [],
+                    "condition": []
+                }, {
+                    "bk_obj_id": "biz",
+                    "fields": [],
+                    "condition": [
+                        {
+                            "field": "bk_inst_id",
+                            "operator": "$in",
+                            "value": bk_biz_ids
+                        }
+                    ]
+                },
+            ]
+        }
 
 
 class JobApiManager(ApiManager):

@@ -21,6 +21,10 @@ def get_search_dict(query_dict):
     return search_dict
 
 
+def remove_record(model, **kwargs):
+    model.objects.filter(**kwargs).delete()
+
+
 def download_response(file_data, file_name):
     '''
     用于文件下载
@@ -118,6 +122,12 @@ class HorBarChart(object):
 
 class PieChart(object):
     def __init__(self, series, title='', sub_title=''):
+        """
+
+        :param series:
+        :param title:
+        :param sub_title:
+        """
         self.series =series
         self.title = {
             "text": title,

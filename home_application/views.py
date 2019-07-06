@@ -9,9 +9,10 @@ from django.views.decorators.csrf import csrf_exempt
 from account.decorators import login_exempt
 from common.mymako import render_mako_context
 from blueking.component.shortcuts import get_client_by_request
-from home_application.api_manager import JobApiManager
+from home_application.api_manager import JobApiManager, CCApiManager
+from home_application.celery_tasks import my_test
 from home_application.resource import Chart
-from home_application.utils import now_time, now_time_str
+from home_application.utils import now_time, now_time_str, time_operation
 from utilities.response import *
 from conf.default import APP_ID, APP_TOKEN
 from utilities.error import try_exception
@@ -38,21 +39,21 @@ def chart(request):
 
 
 def api_test(request):
-    now_time()
-    raise Exception(now_time_str())
-    script_content = '''#!/bin/bash
-CPU=$(top -bn1 | grep load | awk '{printf "%.2f%%", $(NF-2)}')
-echo -e "CPU=$CPU"'''
-    job_api = JobApiManager(request)
-    res = job_api.execute_and_get_log(
-        bk_biz_id=2,
-        script_content=script_content,
-        ip_list=[{
-            'ip': '10.0.1.10',
-            'bk_cloud_id': 0
-        }]
-    )
-    return success_result(res)
+    # celery
+    my_test.apply_async(args=['HEIHA'], eta=time_operation(now_time(), seconds=10))
+    # cc_api = CCApiManager(request)
+    # res = cc_api.search_module({
+    #     "bk_biz_id": 2,
+    #     "fields": [
+    #     ],
+    #     "condition": {
+    #         "bk_module_id": "13"
+    #     },
+    #     "page": {
+    #         "start": 0,
+    #         "limit": 10
+    #     }})
+    return success_result()
 
 
 def test(request):
@@ -90,6 +91,3 @@ def aget_my_test(request):
     for i in range(5):
         chart_datas.append(test_chart.chart_data)
     return success_result(chart_datas)
-
-
-
