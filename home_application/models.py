@@ -39,5 +39,9 @@ class Tmp(BaseOperateModel):
     tchar = models.CharField(max_length=20, choices=TCHOICES)
     ttext = models.TextField()
     tint = models.IntegerField()
+    tfloat = models.IntegerField()
     tdate = models.DateField()
     tbinary = models.BinaryField()
+
+    class Meta:
+        abstract = True

@@ -10,7 +10,6 @@ from account.decorators import login_exempt
 from common.mymako import render_mako_context
 from blueking.component.shortcuts import get_client_by_request
 from home_application.api_manager import JobApiManager, CCApiManager
-from home_application.celery_tasks import my_test
 from home_application.resource import Chart, TopoTreeHandle
 from home_application.utils import now_time, now_time_str, time_operation
 from utilities.response import *

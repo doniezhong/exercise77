@@ -2,7 +2,7 @@
 import base64
 import time
 
-from blueking.component.shortcuts import get_client_by_request
+from blueking.component.shortcuts import get_client_by_request, get_client_by_user
 
 
 def api_exception(func):
@@ -19,8 +19,12 @@ def api_exception(func):
 class ApiManager(object):
     module = ''
 
-    def __init__(self, request):
-        self.client = get_client_by_request(request)
+    def __init__(self, request=None, user=None):
+        if request:
+            self.client = get_client_by_request(request)
+        else:
+            self.client = get_client_by_user(user)
+
         if self.module:
             self.module_client = getattr(self.client, self.module, None)
         else:
@@ -35,7 +39,7 @@ class ApiManager(object):
 class CCApiManager(ApiManager):
     module = 'cc'
 
-    def get_hosts_by_biz(self, bk_biz_ids):
+    def get_hosts_by_bizs(self, bk_biz_ids):
         if isinstance(bk_biz_ids, int):
             bk_biz_ids = [bk_biz_ids]
 
@@ -60,7 +64,7 @@ class CCApiManager(ApiManager):
         }
         return self.search_host(params)
 
-    def get_hosts_by_inst(self, bk_obj_id, bk_inst_id):
+    def get_hosts_by_inst(self, bk_biz_id=None, **kwargs):
         params = {
             "condition": [
                 {
@@ -77,10 +81,45 @@ class CCApiManager(ApiManager):
                             "value": ''
                         }
                     ]
-                },
+                }, {
+                    "bk_obj_id": "module",
+                    "fields": [],
+                    "condition": []
+                }, {
+                    "bk_obj_id": "set",
+                    "fields": [],
+                    "condition": []
+                }
             ]
         }
-        return ''
+        if bk_biz_id:
+            params['bk_biz_id'] = bk_biz_id
+
+        bk_obj_id = kwargs.get('bk_obj_id')
+        for obj in ['set', 'module', 'biz', 'object']:
+            obj_param = {
+                            "bk_obj_id": obj,
+                            "fields": [],
+                            "condition": []
+                        },
+            if bk_obj_id:
+                if bk_obj_id in ['set', 'module', 'biz']:
+                    if bk_obj_id == obj:
+                        obj_param['condition'].append({
+                            "field": "bk_%s_id" % obj,
+                            "operator": "$eq",
+                            "value": kwargs['bk_inst_id']
+                        })
+                else:
+                    if obj == 'object':
+                        obj_param['condition'].append({
+                            "field": "bk_inst_id",
+                            "operator": "$eq",
+                            "value": kwargs['bk_inst_id']
+                        })
+            params['condition'].append(obj_param)
+
+        return self.search_host(params)
 
 
 class JobApiManager(ApiManager):
