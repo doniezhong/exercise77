@@ -71,37 +71,19 @@ class CCApiManager(ApiManager):
                     "bk_obj_id": "host",
                     "fields": [],
                     "condition": []
-                }, {
-                    "bk_obj_id": "biz",
-                    "fields": [],
-                    "condition": [
-                        {
-                            "field": "bk_inst_id",
-                            "operator": "$eq",
-                            "value": ''
-                        }
-                    ]
-                }, {
-                    "bk_obj_id": "module",
-                    "fields": [],
-                    "condition": []
-                }, {
-                    "bk_obj_id": "set",
-                    "fields": [],
-                    "condition": []
                 }
             ]
         }
         if bk_biz_id:
-            params['bk_biz_id'] = bk_biz_id
+            params['bk_biz_id'] = int(bk_biz_id)
 
         bk_obj_id = kwargs.get('bk_obj_id')
         for obj in ['set', 'module', 'biz', 'object']:
             obj_param = {
-                            "bk_obj_id": obj,
-                            "fields": [],
-                            "condition": []
-                        },
+                "bk_obj_id": obj,
+                "fields": [],
+                "condition": []
+            }
             if bk_obj_id:
                 if bk_obj_id in ['set', 'module', 'biz']:
                     if bk_obj_id == obj:

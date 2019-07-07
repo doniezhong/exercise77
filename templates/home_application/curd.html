@@ -32,7 +32,7 @@
               show-sizer/>
     </div>
 
-    <Modal v-model="modal1" title="新增">
+    <Modal v-model="modal1" title="新增" :closable="false" :mask-closable="false">
         <i-form :model="instance_obj" :label-width="80">
             <form-item label="业务名称">
                 <i-select v-model="selected_biz">
@@ -120,15 +120,6 @@
         },
         watch: {},
         mounted() {
-            let data = [];
-            for (let i = 0; i < 100; i++) {
-                data.push({
-                    name: i
-                })
-            }
-            this.page.list_data = data;
-            this.page.total = this.page.list_data.length;
-            this.get_page(this.page);
         },
         methods: {
             get_biz_list() {
@@ -158,7 +149,7 @@
             },
             init_page(page_obj, data) {
                 page_obj.list_data = data;
-                page_obj.total = this.page.list_data.length;
+                page_obj.total = data.length;
                 this.get_page(page_obj);
             },
             get_list() {
@@ -171,7 +162,7 @@
                 });
                 this.$http.get('list', {params: search_params}).then(res => {
                     if (res.result) {
-                        this.init(this.page, res.data);
+                        this.init_page(this.page, res.data);
                     }
                     else {
                         this.$Message.error(res.message)

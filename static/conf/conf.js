@@ -31,6 +31,7 @@ axios.interceptors.response.use(response => {
             result: false
         }
     }
+    vm.$Spin.hide();
     return response.data
 });
 
